@@ -6,6 +6,7 @@ all: libmaths maths_prog.c
 	# mira version:
 	# setenv LD_LIBRARY_PATH \.:$LD_LIBRARY_PATH
 	# bash version:
+	
 	export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 
 libmaths: add.o subtract.o
