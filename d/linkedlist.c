@@ -2,9 +2,11 @@
 #include<stdlib.h>
 
 struct node{
-  int data;
+  void* data;
   struct node *next;
 };
+
+
 
 struct LList{
   int count;
@@ -29,13 +31,13 @@ int** array_of_data_addresses(struct LList *list){
   struct node *c_ptr = list->head;
   int i = 0;
   for(; i < list->count -1;i++){
-    arrd[i] = &(c_ptr->data);
-    printf("\n%d\n",c_ptr->data );
+    arrd[i] = c_ptr->data;
+
 
     c_ptr = c_ptr->next;
   }
 
-  arrd[i] = &(c_ptr->data);
+  arrd[i] = (c_ptr->data);
   printf("\nj%d\n",c_ptr->data );
 
   return arrd;
@@ -73,12 +75,14 @@ void add_to_LList(struct LList *list, int data){
   struct node *head = list->head;
   struct node *new_node = malloc(sizeof(struct node));
 
+  void* node_data = malloc(sizeof(data));
+
   if(new_node == NULL){
     exit(1);
   }
   list->count ++ ;
 
-  new_node->data = data;
+  new_node->data = node_data;
   new_node->next = NULL;
 
   if(head == NULL){
