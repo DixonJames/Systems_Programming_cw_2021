@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
+typedef struct board_structure *board;
 
 struct node{
   char data;
@@ -29,8 +29,13 @@ void base_board_setup(struct board_structure *list, int cols);
 char current_winner(struct board_structure *list);
 struct node* query_board_structure(struct board_structure *list, int x, int y);
 char next_player(struct board_structure *list); 
+struct move read_in_move(struct board_structure* u);
 
 struct board_structure* setup_board();
+void play_move(struct move m, board u);
+char is_winning_move(struct move m, board u);
+void cleanup_board(board u);
+int is_valid_move(struct move m, struct board_structure* u);
 
 int r_win(struct node* current);
 int l_win(struct node* current);
@@ -198,6 +203,26 @@ int bl_win(struct node* current){
     return 1;
 }
 
+void cleanup_board(board u){
+    free_board_content(u);
+    free(u);
+}
+
+struct move read_in_move(struct board_structure* u){
+    printf("Player %c enter column to place your token: ",next_player(u));
+    int column_int;
+    scanf("%d", &column_int);
+
+    printf("Player %c enter row to rotate: ",next_player(u));
+    int row_int;
+    scanf("%d", &row_int);
+
+    struct move* current_move;
+    current_move->column = column_int;
+    current_move->row = row_int;
+
+    return *current_move;
+}
 
 char current_winner(struct board_structure *list){
     char p1[1] = "x";
@@ -513,26 +538,97 @@ char next_player(struct board_structure *list){
             }
         }
     if((x_count == 0)&&(o_count == 0)){
-        return "x";
+        return p1[0];
     }
     if((x_count == o_count)){
-        return "x";
+        return p1[0];
     }
     if((x_count > o_count)){
-        return "o";
+        return p2[0];
     }
     if((x_count < o_count)){
-        return "x";
+        return p1[0];
     }
     }
+
+int is_valid_move(struct move m, struct board_structure* u){
+    char cw[1];
+    cw[0] = current_winner(u);
+    char dot[1];
+    dot[0] = ".";
+
+    //if anything other than 'no winner'. no move is valid.
+    if((dot[0] - cw[0]) != 0){
+        return 0;
+    }
+
+    //if any parts of m are outside of the playable area
+    if((m.column > u->cols) || (m.row > u->rows) || (m.column < 1) || (m.row < 1)){
+        return 0;
+    }
+
+    //if all ^ passed, then should be ok!
+    return 1;
+
+}
+
+void play_move(struct move m, board u){
+    if((is_valid_move(m, u) == 1)){
+        
+        char player_token = next_player(u);
+        add_to_board(u, m.column,u->rows, player_token);
+
+        rotate_row(u, m.row);
+    }
+}
+
+char is_winning_move(struct move m, board u){
+
+    struct board_structure *new_list = setup_board();
+    base_board_setup(new_list, u->cols+1);
+    new_list->rows = u->rows;
+
+    //go through the board row by row starting at the bottom
+    //add each to new board from left to right
+    
+    for(int row_num = 0; row_num <= u->rows; row_num++){
+        for(int col_num = 0; col_num <= u->cols ; col_num++){
+            if(query_board_structure(u, col_num, row_num) != u->head){
+                add_to_board(new_list, col_num, row_num, query_board_structure(u, col_num, row_num)->data);
+                int insert_x = col_num;
+                int insert_y = row_num;
+            }
+            
+        }
+    }
+    play_move(m, new_list);
+    char test_winner[1];
+    test_winner[0] = current_winner(new_list);
+
+    //get rid of the testing baord
+    free_board_content(new_list);
+    free(new_list);
+
+    return test_winner[0];
+}   
+    
+
+
+        
+    
+
 
 
 int main(){
+
+    
     char p1[1] = "x";
   struct board_structure *mylist = setup_board();
   base_board_setup(mylist, 6);
 
   mylist->rows = 10;
+
+  //struct move mymove = read_in_move(mylist);
   add_to_board(mylist, 1,1, p1[0]);
   add_to_board(mylist, 2,1, p1[0]);
   add_to_board(mylist, 3,1, p1[0]);
@@ -562,8 +658,7 @@ int main(){
   
 
   
-    free_board_content(mylist);
-    free(mylist);
+    cleanup_board(mylist);
   printf("done");
   return 0;
 }
