@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 
 struct node{
@@ -16,13 +17,269 @@ struct board_structure{
   struct node *head;
 };
 
+struct move{
+int column;
+int row;
+};
+
 void add_to_board(struct board_structure *list, int x, int y, char data);
 void rotate_row(struct board_structure *list, int row_num);
-
 void free_board_content(struct board_structure *list);
 void base_board_setup(struct board_structure *list, int cols);
+char current_winner(struct board_structure *list);
 struct node* query_board_structure(struct board_structure *list, int x, int y);
+char next_player(struct board_structure *list); 
+
 struct board_structure* setup_board();
+
+int r_win(struct node* current);
+int l_win(struct node* current);
+int u_win(struct node* current);
+int d_win(struct node* current);
+int tr_win(struct node* current);
+int tl_win(struct node* current);
+int br_win(struct node* current);
+int bl_win(struct node* current);
+
+
+int r_win(struct node* current){
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->right == NULL){
+            return 0;
+        }
+        if(current->right->data != first->data){
+            return 0;
+        }
+        
+        current = current->right;
+    }
+
+    return 1;
+}
+int l_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->left == NULL){
+            return 0;
+        }
+        if(current->left->data != first->data){
+            return 0;
+        }
+        
+        current = current->left;
+    }
+
+    return 1;
+}
+int u_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->above == NULL){
+            return 0;
+        }
+        if(current->above->data != first->data){
+            return 0;
+        }
+        
+        current = current->above;
+    }
+
+    return 1;
+}
+int d_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->below == NULL){
+            return 0;
+        }
+        if(current->below->data != first->data){
+            return 0;
+        }
+        
+        current = current->below;
+    }
+
+    return 1;
+}
+int tr_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->right == NULL){
+            return 0;
+        }
+        if(current->right->above == NULL){
+            return 0;
+        }
+        if(current->right->above->data != first->data){
+            return 0;
+        }
+        
+        current = current->right->above;
+    }
+
+    return 1;
+}
+int tl_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->left == NULL){
+            return 0;
+        }
+        if(current->left->above == NULL){
+            return 0;
+        }
+        if(current->left->above->data != first->data){
+            return 0;
+        }
+        
+        current = current->left->above;
+    }
+
+    return 1;
+}
+int br_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->right == NULL){
+            return 0;
+        }
+        if(current->right->below == NULL){
+            return 0;
+        }
+        if(current->right->below->data != first->data){
+            return 0;
+        }
+        
+        current = current->right->below;
+    }
+
+    return 1;
+}
+int bl_win(struct node* current){
+    
+    struct node* first = current;
+
+    for(int i = 0; i < 3; i++){
+
+        if(current->left == NULL){
+            return 0;
+        }
+        if(current->left->below == NULL){
+            return 0;
+        }
+        if(current->left->below->data != first->data){
+            return 0;
+        }
+        
+        current = current->left->below;
+    }
+
+    return 1;
+}
+
+
+char current_winner(struct board_structure *list){
+    char p1[1] = "x";
+    char p2[1] = "o";
+    char nw[1] = ".";
+    char d[1] = "d";
+
+    int x_win = 0;
+    int o_win = 0;
+    int b_full = 1;
+
+    for(int i = 0; i< list->cols; i++){
+        for(int j = 0; j< list->rows; j++){
+            if((query_board_structure(list, i, j)!= list->head)){
+                int current_win = 0;
+
+                if(u_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(d_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(l_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(r_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(tr_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(tl_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(br_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+                }
+                if(bl_win(query_board_structure(list, i, j)) == 1){
+                    current_win = 1;
+
+                }
+
+                char x_pointer[1] = "J";
+                x_pointer[0]= (query_board_structure(list, i, j)->data);
+
+                if((current_win == 1)){
+                    if(((p1[0] - x_pointer[0]) == 0)){
+                    x_win = 1;
+                    }else{
+                    o_win = 1;
+                    }
+                }
+                
+            }else{
+                if(query_board_structure(list, i, j) == list->head){
+                    b_full = 0;
+                }
+            }
+        }
+    }
+    //both win, draw
+    if((x_win == 1)&&(o_win == 1)){
+        return d[0];
+    }
+    //none have won and board is full, draw
+    if((x_win == 0)&&(o_win == 0)&&(b_full == 0)){
+        return d[0];
+    }
+    //none win and bord is not full, no winner
+    if((x_win == 0)&&(o_win == 0)){
+        return nw[0];
+    }
+
+    //single wins
+    if((x_win == 1)){
+        return p1[0];
+    }
+    if((o_win == 1)){
+        return p2[0];
+    }
+
+}
 
 void free_board_content(struct board_structure *list){
     //for each base (starting at the final base)
@@ -230,16 +487,56 @@ void rotate_row(struct board_structure *list, int row_rotaion_num){
     
     }
 
+char next_player(struct board_structure *list){
+    int x_count = 0;
+    int o_count = 0;
+
+    char p1[1] = "x";
+    char p2[1] = "o";
+
+    for(int x = 0; x < list->cols; x++){
+        for(int y = 0; y< list->rows; y++){
+            if(query_board_structure(list, x,y) != list->head){
+
+                char char_pointer[1] = "Z";
+                char_pointer[0]= query_board_structure(list, x,y)->data;
+
+
+                if(((p1[0] - char_pointer[0]) == 0)){
+                    x_count ++ ;
+                }else{
+                    o_count ++ ;
+                    }
+                }
+
+
+            }
+        }
+    if((x_count == 0)&&(o_count == 0)){
+        return "x";
+    }
+    if((x_count == o_count)){
+        return "x";
+    }
+    if((x_count > o_count)){
+        return "o";
+    }
+    if((x_count < o_count)){
+        return "x";
+    }
+    }
 
 
 int main(){
-    char p1 = "x";
+    char p1[1] = "x";
   struct board_structure *mylist = setup_board();
   base_board_setup(mylist, 6);
 
   mylist->rows = 10;
-  add_to_board(mylist, 1,1, p1);
-  add_to_board(mylist, 1,1, p1);
+  add_to_board(mylist, 1,1, p1[0]);
+  add_to_board(mylist, 2,1, p1[0]);
+  add_to_board(mylist, 3,1, p1[0]);
+  add_to_board(mylist, 4,1, p1[0]);
 
   //add_to_board(mylist, 3,0, p1);
   //add_to_board(mylist, 3,1, p1);
@@ -250,7 +547,8 @@ int main(){
   
   
 
-  rotate_row(mylist, -1);
+  //rotate_row(mylist, 1);
+  int win = current_winner(mylist);
 
   //to free everything:
   //free_board_content(mylist);
@@ -260,11 +558,12 @@ int main(){
   
 
   
-  struct node* peice = query_board_structure(mylist, 1,1);
+  
   
 
   
-
+    free_board_content(mylist);
+    free(mylist);
   printf("done");
   return 0;
 }
