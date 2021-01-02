@@ -12,6 +12,7 @@ struct node{
 };
 
 struct board_structure{
+    //rows and cols are the max indexes of the queryable nodes. as count goes from 0->rows/cols
   int rows;
   int cols;
   struct node *head;
@@ -36,6 +37,8 @@ void play_move(struct move m, board u);
 char is_winning_move(struct move m, board u);
 void cleanup_board(board u);
 int is_valid_move(struct move m, struct board_structure* u);
+void read_in_file(FILE *infile, board u);
+int number_cols(FILE *infile);
 
 int r_win(struct node* current);
 int l_win(struct node* current);
@@ -555,7 +558,7 @@ int is_valid_move(struct move m, struct board_structure* u){
     char cw[1];
     cw[0] = current_winner(u);
     char dot[1];
-    dot[0] = ".";
+    dot[0] = '.';
 
     //if anything other than 'no winner'. no move is valid.
     if((dot[0] - cw[0]) != 0){
@@ -612,7 +615,83 @@ char is_winning_move(struct move m, board u){
     return test_winner[0];
 }   
     
+int number_cols(FILE *infile){
+    char ch;
+    char cmp_char[4] = {'x', 'o', '.', '_'};
+    int i = 0;
 
+    int valid_char = 0;
+
+    while ((ch = fgetc(infile)) != EOF){
+        cmp_char[3] = ch;
+
+        for(int j = 0; j < 3; j++){
+            if((cmp_char[j] - cmp_char[3] == 0)){
+                valid_char = 1 ;
+            }
+        }
+
+        if((valid_char == 1)){
+            i++ ;
+        }else{
+            return i;
+        }
+
+        valid_char = 0;
+    }
+    return -1;
+} 
+
+void read_in_file(FILE *infile, board u){
+    int i = 0;
+    int chars_to_print = 0;
+    int lst_prt;
+    char cmp_char[4] = {'x', 'o', '.'};
+    
+
+    int col_num = number_cols(infile) ;
+    if((col_num < 4)||(col_num > 512)){
+        exit(1);
+    }
+    
+    base_board_setup(u, col_num);
+    u->rows = 1 ;
+
+    //as col number starts at 0 
+    fseek(infile, 0, SEEK_END);
+    chars_to_print = ftell(infile);
+
+    int current_col = 0;
+    int current_row = 0;
+    
+    while (i < chars_to_print)
+    {
+        i++ ;
+        fseek(infile, -i, SEEK_END);
+        char char_from_file[1] ;
+        char_from_file[0] = fgetc(infile);
+        //printf("%c",  char_from_file[0]);
+
+        
+        if((current_col % (col_num +1) == 0)){
+            
+            current_col = 0;
+            current_row ++ ;
+            u->rows =current_row;
+        }
+
+        for(int j = 0; j < 2; j++){
+            if((cmp_char[j] - char_from_file[0] == 0)){
+                int inset_x = (col_num) - current_col;
+                int insert_y = current_row-1;
+                struct node* test = query_board_structure(u, (col_num) - current_col, current_row-1);
+                printf("%c: %d, %d \n",  char_from_file[0], (col_num) - current_col, current_row -1);
+                add_to_board(u, (col_num) - current_col, current_row-1, char_from_file[0]);
+            }
+        }
+        current_col ++;
+    }
+}
 
         
     
@@ -620,11 +699,14 @@ char is_winning_move(struct move m, board u){
 
 
 int main(){
-
+    
     
     char p1[1] = "x";
   struct board_structure *mylist = setup_board();
-  base_board_setup(mylist, 6);
+  FILE *infile = fopen("b/test_input1.txt","r");
+  read_in_file(infile, mylist);
+
+  
 
   mylist->rows = 10;
 
