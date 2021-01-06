@@ -39,6 +39,7 @@ void cleanup_board(board u);
 int is_valid_move(struct move m, struct board_structure* u);
 void read_in_file(FILE *infile, board u);
 int number_cols(FILE *infile);
+void write_out_file(FILE *outfile, board u);
 
 int r_win(struct node* current);
 int l_win(struct node* current);
@@ -693,54 +694,76 @@ void read_in_file(FILE *infile, board u){
     }
 }
 
-        
+void write_out_file(FILE *outfile, board u){
+    char current_to_insert[1];
+
+    for(int row_num = u->rows -1; row_num >= 0; row_num--){
+        for(int col_num = 0; col_num <= u->cols ; col_num++){
+
+
+            if(query_board_structure(u, col_num, row_num) != u->head){
+                current_to_insert[0] = query_board_structure(u, col_num, row_num)->data;
+            }
+            else{
+                    current_to_insert[0] = '.' ;
+            }
+
+            fprintf(outfile, "%s",current_to_insert);
+
+            
+        }
+        fprintf(outfile, "\n");
+}
+}
     
 
 
 
 int main(){
-    
-    
+        
+        
     char p1[1] = "x";
-  struct board_structure *mylist = setup_board();
-  FILE *infile = fopen("b/test_input1.txt","r");
-  read_in_file(infile, mylist);
+    struct board_structure *mylist = setup_board();
 
-  
+    FILE *infile = fopen("b/test_input1.txt","r");
+    read_in_file(infile, mylist);
+    fclose(infile);
 
-  mylist->rows = 10;
+    FILE *outfile = fopen("b/blueCheese", "w");
+    write_out_file(outfile, mylist);
+    fclose(outfile);
 
-  //struct move mymove = read_in_move(mylist);
-  add_to_board(mylist, 1,1, p1[0]);
-  add_to_board(mylist, 2,1, p1[0]);
-  add_to_board(mylist, 3,1, p1[0]);
-  add_to_board(mylist, 4,1, p1[0]);
+    //struct move mymove = read_in_move(mylist);
+    add_to_board(mylist, 1,1, p1[0]);
+    add_to_board(mylist, 2,1, p1[0]);
+    add_to_board(mylist, 3,1, p1[0]);
+    add_to_board(mylist, 4,1, p1[0]);
 
-  //add_to_board(mylist, 3,0, p1);
-  //add_to_board(mylist, 3,1, p1);
+    //add_to_board(mylist, 3,0, p1);
+    //add_to_board(mylist, 3,1, p1);
 
 
-  //add_to_board(mylist, 5,0, p1);
-  //add_to_board(mylist, 5,1, p1);
-  
-  
+    //add_to_board(mylist, 5,0, p1);
+    //add_to_board(mylist, 5,1, p1);
+    
+    
 
-  //rotate_row(mylist, 1);
-  int win = current_winner(mylist);
+    //rotate_row(mylist, 1);
+    int win = current_winner(mylist);
 
-  //to free everything:
-  //free_board_content(mylist);
-  //free(mylist);
-  
+    //to free everything:
+    //free_board_content(mylist);
+    //free(mylist);
+    
 
-  
+    
 
-  
-  
-  
+    
+    
+    
 
-  
+    
     cleanup_board(mylist);
-  printf("done");
-  return 0;
+    printf("done");
+    return 0;
 }
