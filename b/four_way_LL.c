@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<string.h>
+#include<string.h> 
+
 typedef struct board_structure *board;
 
 struct node{
@@ -46,11 +47,8 @@ void write_out_file(FILE *outfile, board u);
 int r_win(struct node* current);
 int l_win(struct node* current);
 int u_win(struct node* current);
-int d_win(struct node* current);
 int tr_win(struct node* current);
 int tl_win(struct node* current);
-int br_win(struct node* current);
-int bl_win(struct node* current);
 
 
 int r_win(struct node* current){
@@ -106,24 +104,6 @@ int u_win(struct node* current){
 
     return 1;
 }
-int d_win(struct node* current){
-    
-    struct node* first = current;
-
-    for(int i = 0; i < 3; i++){
-
-        if(current->below == NULL){
-            return 0;
-        }
-        if(current->below->data != first->data){
-            return 0;
-        }
-        
-        current = current->below;
-    }
-
-    return 1;
-}
 int tr_win(struct node* current){
     
     struct node* first = current;
@@ -162,48 +142,6 @@ int tl_win(struct node* current){
         }
         
         current = current->left->above;
-    }
-
-    return 1;
-}
-int br_win(struct node* current){
-    
-    struct node* first = current;
-
-    for(int i = 0; i < 3; i++){
-
-        if(current->right == NULL){
-            return 0;
-        }
-        if(current->right->below == NULL){
-            return 0;
-        }
-        if(current->right->below->data != first->data){
-            return 0;
-        }
-        
-        current = current->right->below;
-    }
-
-    return 1;
-}
-int bl_win(struct node* current){
-    
-    struct node* first = current;
-
-    for(int i = 0; i < 3; i++){
-
-        if(current->left == NULL){
-            return 0;
-        }
-        if(current->left->below == NULL){
-            return 0;
-        }
-        if(current->left->below->data != first->data){
-            return 0;
-        }
-        
-        current = current->left->below;
     }
 
     return 1;
