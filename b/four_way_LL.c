@@ -233,16 +233,12 @@ struct move read_in_move(board u){
 
 void highlight_win_rows(board list){
     char p1[1] = "x";
-    char p2[1] = "o";
-    char nw[1] = ".";
-    char d[1] = "d";
 
     char p1_win[1] = "X";
-    char p2_win[1] = "O";
 
     int x_win = 0;
     int o_win = 0;
-    int b_full = 1;
+    
 
     
 
@@ -251,7 +247,7 @@ void highlight_win_rows(board list){
             if((query_board_structure(list, i, j)!= list->head) && ((x_win == 0) || (o_win == 0))){
 
                 struct node* current = query_board_structure(list, i, j);
-                int current_win = 0;
+                
                 int char_win_found = 1;
 
                 char x_pointer[1];
@@ -274,7 +270,7 @@ void highlight_win_rows(board list){
                 if((char_win_found == 0)){
 
                     if( u_win(query_board_structure(list, i, j)) ){
-                    current_win = 1;
+                    
 
                     current->data = win_char;
                     current->above->data = win_char;
@@ -284,7 +280,7 @@ void highlight_win_rows(board list){
                     }
 
                     if(l_win(query_board_structure(list, i, j)) == 1){
-                        current_win = 1;
+                        
                         
                         current->data = win_char;
                         current->left->data = win_char;
@@ -292,7 +288,7 @@ void highlight_win_rows(board list){
                         current->left->left->left->data = win_char;
                     }
                     if(r_win(query_board_structure(list, i, j)) == 1){
-                        current_win = 1;
+                        
 
                         current->data = win_char;
                         current->right->data = win_char;
@@ -300,7 +296,7 @@ void highlight_win_rows(board list){
                         current->right->right->right->data = win_char;
                     }
                     if(tr_win(query_board_structure(list, i, j)) == 1){
-                        current_win = 1;
+                        
 
                         current->data = win_char;
                         current->right->above->data = win_char;
@@ -309,8 +305,7 @@ void highlight_win_rows(board list){
 
                     }
                     if(tl_win(query_board_structure(list, i, j)) == 1){
-                        current_win = 1;
-
+                      
                         current->data = win_char;
                         current->left->above->data = win_char;
                         current->left->above->left->above->data = win_char;
@@ -442,18 +437,22 @@ struct board_structure* setup_board(){
     if((mylist == NULL)){
         exit(1);
     }
+    mylist->head = NULL;
+    mylist->cols = 0;
+    mylist->rows = 0;
     return mylist;
 }
 
 void base_board_setup(board list, int cols){
-
-    struct node* current = list->head;
     struct node* previous = NULL;
 
     char blank = '_';
 
     for(int i = 1; i < cols; i++){
         struct node* newnode = malloc(sizeof(struct node));
+        if((newnode == NULL)){
+            exit(1);
+        }
         newnode->data = blank;
         newnode->above = NULL;
         newnode->below = NULL;
@@ -474,6 +473,9 @@ void base_board_setup(board list, int cols){
         
     }
     struct node* newnode = malloc(sizeof(struct node));
+    if((newnode == NULL)){
+            exit(1);
+        }
     newnode->data = blank;
     newnode->above = NULL;
     newnode->below = NULL;
@@ -508,7 +510,6 @@ struct node* query_board_structure(board list, int x, int y){
         current = current->right;
     }
 
-    struct node* base = current;
     
     //goes up y
     //j is number of things alrady in collumb
@@ -558,8 +559,12 @@ void add_to_board(board list, int x, int y, char data){
         //only connects to bellow if it is not a base node
         
         newnode->below =current;
+        newnode->above = NULL;
+        newnode->right = NULL;
+        newnode->left = NULL;
         
         current->above = newnode;
+
         if(newnode->below->right != NULL){
             newnode->right = newnode->below->right->above;
             if(newnode->below->right->above != NULL){
@@ -596,7 +601,6 @@ void rotate_row(board u, int rotation_num){
             
             
             if((current->data - bad_token[0] != 0)){
-                int insert_y = y;
                 int insert_x = x;
                 if((row_to_rotate == y)){
 
@@ -734,8 +738,7 @@ char is_winning_move(struct move m, board u){
         for(int col_num = 0; col_num <= u->cols -1 ; col_num++){
             if(query_board_structure(u, col_num, row_num) != u->head){
                 add_to_board(new_list, col_num, row_num, query_board_structure(u, col_num, row_num)->data);
-                int insert_x = col_num;
-                int insert_y = row_num;
+
             }
             
         }
@@ -818,9 +821,7 @@ void read_in_file(FILE *infile, board u){
 
         for(int j = 0; j < 2; j++){
             if((cmp_char[j] - char_from_file[0] == 0)){
-                int inset_x = (col_num) - current_col;
-                int insert_y = current_row-1;
-                struct node* test = query_board_structure(u, (col_num) - current_col, current_row-1);
+
                 printf("%c: %d, %d \n",  char_from_file[0], (col_num) - current_col, current_row -1);
                 add_to_board(u, (col_num) - current_col, current_row-1, char_from_file[0]);
             }
@@ -854,28 +855,6 @@ void write_out_file(FILE *outfile, board u){
 
 
 
-int main(){
-  FILE *infile,*outfile;
 
-  board my_board=setup_board();
-  infile=fopen("b/initial_board.txt","r");
-  read_in_file(infile,my_board);
-  fclose(infile);
 
-  write_out_file(stdout,my_board);
-   
-  while(current_winner(my_board)=='.') {
-    struct move next_move = read_in_move(my_board);
-    if (is_valid_move(next_move,my_board)) {
-        play_move(next_move,my_board);
-        write_out_file(stdout,my_board);
-    }
-  }
 
-  outfile=fopen("b/final_board.txt","w");
-  write_out_file(outfile,my_board);
-  fclose(outfile);
-
-  cleanup_board(my_board);
-  return 0;
-}
