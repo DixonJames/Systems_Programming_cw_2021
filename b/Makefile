@@ -6,3 +6,4 @@ all: connect4.c connect4.h
 
 clean:
 	rm -rf connect4_out
+	rm -rf *.o *.out

@@ -6,8 +6,6 @@ struct node{
   struct node *next;
 };
 
-
-
 struct LList{
   int count;
   struct node *head;
@@ -16,8 +14,10 @@ struct LList{
 void add_to_LList(struct LList *list, int data);
 void Read_LList(struct LList *list);
 void free_LList(struct LList *list);
+
 int** array_of_data_addresses(struct LList *list);
 int compare(const int **x, const int **y);
+char* sting_unknown_len_input(FILE* fp, int starting_size);
 
 
 
@@ -38,22 +38,14 @@ int** array_of_data_addresses(struct LList *list){
   }
 
   arrd[i] = (c_ptr->data);
-  printf("\nj%d\n",c_ptr->data );
+
 
   return arrd;
 }
 
 
-void Read_LList(struct LList *list){
-  struct node *c_ptr = list->head;
-  while (c_ptr->next != NULL)
-  {
-    printf("%d", c_ptr->data);
-    c_ptr = c_ptr->next;
-  }
-  printf("%d", c_ptr->data);
-  return;
-}
+
+
 
 void free_LList(struct LList *list){
   if(list->head != NULL){
@@ -112,7 +104,51 @@ int compare(const int **x, const int **y) {
         return 1;
 }
 
+
+char* sting_unknown_len_input(FILE* fp, int starting_size){
+  //returns a char pointer to memory containing a string of (inicialy) unknown length
+  char* string;
+  int charactar;
+  int length = 0;
+
+  string = malloc(sizeof(*string)*starting_size);
+  if((string == NULL)){
+    return string;
+  }
+
+  while((charactar != '\n') && (EOF !=(charactar = fgetc(fp)))){
+    string[length] = charactar;
+    length++ ;
+
+    if((length == starting_size)){
+      starting_size += 16;
+      string = realloc(string, sizeof(*string)*(starting_size));
+      if((string == NULL)){
+        return string;
+      }
+    }
+  }
+
+  length++ ;
+  string[length] = '\0';
+  
+  return string;
+}
+
+
+
+
+
+
+
 void main(){
+
+  FILE *fp;
+  fp = fopen("d/j.txt","r");
+  char* first_line = sting_unknown_len_input(fp, 2);
+
+
+
 
   struct LList *mylist = malloc(sizeof(struct LList));
   add_to_LList(mylist,  3);
