@@ -1,5 +1,3 @@
-1oe
-2two
+one
+two
 three
-d
-s

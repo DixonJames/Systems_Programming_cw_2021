@@ -11,15 +11,16 @@ struct LList{
   struct node *head;
 };
 
-void add_to_LList(struct LList *list, int data);
+void add_to_LList(struct LList *list, void* data);
 void Read_LList(struct LList *list);
 void free_LList(struct LList *list);
 
 int** array_of_data_addresses(struct LList *list);
 int compare(const int **x, const int **y);
-char* sting_unknown_len_input(FILE* fp, int starting_size);
-
-
+void file_to_llist(FILE* fp, struct LList* list);
+void file_to_linkedList(FILE* fp, struct LList* list);
+int lines_in_file(FILE* fp);
+char* coppy_str(char string[]);
 
 
 int** array_of_data_addresses(struct LList *list){
@@ -43,10 +44,6 @@ int** array_of_data_addresses(struct LList *list){
   return arrd;
 }
 
-
-
-
-
 void free_LList(struct LList *list){
   if(list->head != NULL){
     struct node *curret_ptr = list->head;
@@ -63,21 +60,19 @@ void free_LList(struct LList *list){
 
 }
 
-void add_to_LList(struct LList *list, int data){
+void add_to_LList(struct LList *list, void* data){
   struct node *head = list->head;
   struct node *new_node = malloc(sizeof(struct node));
-
-  void* node_data = malloc(sizeof(data));
 
   if(new_node == NULL){
     exit(1);
   }
   list->count ++ ;
 
-  new_node->data = node_data;
+  new_node->data = data;
   new_node->next = NULL;
 
-  if(head == NULL){
+  if(list->head == NULL){
     list->head = new_node;
     return;
   }
@@ -104,35 +99,84 @@ int compare(const int **x, const int **y) {
         return 1;
 }
 
-
-char* sting_unknown_len_input(FILE* fp, int starting_size){
+void file_to_llist(FILE* fp, struct LList* list){
   //returns a char pointer to memory containing a string of (inicialy) unknown length
   char* string;
   int charactar;
   int length = 0;
+  int starting_size = 2;
+  int cont = 1;
 
-  string = malloc(sizeof(*string)*starting_size);
-  if((string == NULL)){
-    return string;
-  }
 
-  while((charactar != '\n') && (EOF !=(charactar = fgetc(fp)))){
-    string[length] = charactar;
-    length++ ;
+  while((EOF !=(charactar = fgetc(fp)))){
 
-    if((length == starting_size)){
-      starting_size += 16;
-      string = realloc(string, sizeof(*string)*(starting_size));
-      if((string == NULL)){
-        return string;
+    string = malloc(sizeof(*string)*starting_size);
+    if((string == NULL)){
+      exit(1);
+    }
+
+    while((charactar != '\n') && (EOF !=(charactar))&& (cont == 1)){
+      string[length] = charactar;
+      length++ ;
+
+      if((length == starting_size)){
+        starting_size += 16;
+        string = realloc(string, sizeof(*string)*(starting_size));
+        if((string == NULL)){
+          cont = 0;
+        }
       }
+
+      charactar = fgetc(fp);
+    }
+
+    length++ ;
+    string[length] = '\0';
+    length = 0;
+
+    char* string_cpy = coppy_str(string);
+    free(string);
+    
+    add_to_LList(list, string_cpy);
+}
+}
+
+char* coppy_str(char string[]){
+  char* copy;
+  copy = (char*)malloc(strlen(string)+1);
+
+  int i;
+  for(i = 0; i < strlen(string); i++){
+    copy[i] = string[i];
+  }
+  copy[i] = '\0';
+  return copy;
+}
+
+
+void file_to_linkedList(FILE* fp, struct LList* list){
+  char* whole_string;
+  int lower_char = 0;
+  int higher_char = 0;
+
+  file_to_llist(fp, list);
+
+  for( ;whole_string[higher_char]; higher_char++){
+
+    if((whole_string[higher_char] == '\n')){
+      char add_string[higher_char - lower_char];
+
+      for(int i = lower_char; i <= higher_char; i++){
+        add_string[i] = whole_string[i];
+      }
+      add_to_LList(list,&add_string);
+      lower_char = higher_char;
+
     }
   }
 
-  length++ ;
-  string[length] = '\0';
+
   
-  return string;
 }
 
 
@@ -140,22 +184,19 @@ char* sting_unknown_len_input(FILE* fp, int starting_size){
 
 
 
-
-void main(){
+int main(){
 
   FILE *fp;
-  fp = fopen("d/j.txt","r");
-  char* first_line = sting_unknown_len_input(fp, 2);
-
-
-
-
+  fp = fopen("d/testsort.txt","r");
   struct LList *mylist = malloc(sizeof(struct LList));
-  add_to_LList(mylist,  3);
-  add_to_LList(mylist,  2);
-  add_to_LList(mylist,  'a');
-  add_to_LList(mylist,  0);
+  file_to_linkedList(fp, mylist);
 
+
+
+
+  
+
+  /*
   int** data = array_of_data_addresses(mylist);
   int* unpacked[mylist->count -1];
 
@@ -167,10 +208,12 @@ void main(){
   int width = sizeof(unpacked[0]);
 
   qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), compare);
+  */
   
 
   free_LList(mylist);
   printf("done");
+  return 1;
 }
 
 

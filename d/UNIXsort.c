@@ -2,139 +2,23 @@
 #include<stdlib.h>
 
 struct node{
-  int data;
+  char* data;
   struct node *next;
 };
 
 struct LList{
   int count;
-  struct node *head;
+  struct node* head;
 };
 
-int compVals(const void * a, const void * b);
-void add_to_LList(struct LList *list, int data);
-void Read_LList(struct LList *list);
-void free_LList(struct LList *list);
-int** array_of_data_addresses(struct LList *list);
 int compare(const int **x, const int **y);
+void add_to_LL(struct LList* list, char* data);
+void file_to_LL(struct LList* list, FILE* fp);
+char** LL_to_arrayOfPointers(struct LList* list);
+char** sort_arrayOfPointers(char** array);
+void output_sorted_arrayOfPointers(char** array);
+char* coppy_str(char string[]);
 
-void* fileToArray(char* file_name);
-
-
-void* fileToArray(char* file_name){
-    FILE* fp = fopen(file_name, "r"); 
-    if(fp == NULL){
-		fprintf(stderr, "cat: can't open %s\n", file_name);
-        return NULL;
-	}
-
-    char* arrayOf_line_pointers =  malloc(10 * sizeof(char*));
-    int line_capacity = 10;
-    int current_line = 1;
-
-    char line[256];
-
-    struct LList *mylist = malloc(sizeof(struct LList));
-  
-    while (fgets(line, sizeof(line), fp)) {
-        add_to_LList(mylist,  line);
-    }
-    add_to_LList(mylist,  0); //dummy value. not very elegant. oh well.
-
-    int** data = array_of_data_addresses(mylist);
-    int* unpacked[mylist->count -1];
-    
-
-    for(int i = 0; i< mylist->count; i++ ){
-        unpacked[i] = data[i];
-    }
-    int** arr_ptr = malloc(sizeof(unpacked));
-    *arr_ptr = data;
-
-    free_LList(mylist);
-    fclose(fp);
-    return arrayOf_line_pointers;
-
-
-return 0;
-}
-
-int** array_of_data_addresses(struct LList *list){
-  int **arrd; 
-  *arrd = (int *)malloc(list->count * sizeof (int*));
-
-  
-
-  struct node *c_ptr = list->head;
-  int i = 0;
-  for(; i < list->count -1;i++){
-    arrd[i] = &(c_ptr->data);
-    printf("\n%d\n",c_ptr->data );
-
-    c_ptr = c_ptr->next;
-  }
-
-  arrd[i] = &(c_ptr->data);
-  printf("\nj%d\n",c_ptr->data );
-
-  return arrd;
-}
-
-void Read_LList(struct LList *list){
-  struct node *c_ptr = list->head;
-  while (c_ptr->next != NULL)
-  {
-    printf("%d", c_ptr->data);
-    c_ptr = c_ptr->next;
-  }
-  printf("%d", c_ptr->data);
-  return;
-}
-
-void free_LList(struct LList *list){
-  if(list->head != NULL){
-    struct node *curret_ptr = list->head;
-    struct node *next_ptr = list->head;
-    while (curret_ptr != NULL){
-      next_ptr = curret_ptr->next;
-      free(curret_ptr);
-      curret_ptr = next_ptr;
-    }
-  free(list);
-  return;
-  }
-  
-
-}
-
-void add_to_LList(struct LList *list, int data){
-  struct node *head = list->head;
-  struct node *new_node = malloc(sizeof(struct node));
-
-  if(new_node == NULL){
-    exit(1);
-  }
-  list->count ++ ;
-
-  new_node->data = data;
-  new_node->next = NULL;
-
-  if(head == NULL){
-    list->head = new_node;
-    return;
-  }
-  
-  struct node *c_ptr = list->head;
-  while (c_ptr->next != NULL)
-  {
-    c_ptr = c_ptr->next;
-  }
-  
-  c_ptr->next = new_node;
-
-  
-  return;
-}
 
 int compare(const int **x, const int **y) {
     const int a = **x;
@@ -146,17 +30,88 @@ int compare(const int **x, const int **y) {
         return 1;
 }
 
+void add_to_LL(struct LList* u, char* data){
+  int len_string = sizeof(*data)/sizeof('a');
+  char* data_coppy = malloc(sizeof(data));
 
+  struct node* newnode = malloc(sizeof(struct node));
+  data_coppy = data;
 
+  newnode->data = data_coppy;
+  newnode->next = NULL;
 
+  if((u->head == NULL)){
+    u->head = newnode;
+  }
+  else{
+    struct node* current = u->head;
+    while (current->next != NULL)
+    {
+      current = current->next;
+    }
+    current->next = newnode;
+  }
+  
+}
+
+char* coppy_str(char string[]){
+  char* copy;
+  copy = (char*)malloc(strlen(string)+1);
+
+  int i;
+  for(i = 0; i < strlen(string); i++){
+    copy[i] = string[i];
+  }
+  copy[i] = '\0';
+  return copy;
+}
+
+void file_to_LL(struct LList* list, FILE* fp){
+  //returns a char pointer to memory containing a string of (inicialy) unknown length
+  char* string;
+  int charactar;
+  int length = 0;
+  int starting_size =2;
+
+  string = malloc(sizeof(*string)*starting_size);
+  if((string == NULL)){
+    return string;
+  }
+
+  while((charactar != '/n') && (EOF !=(charactar = fgetc(fp)))){
+    string[length] = charactar;
+    length++ ;
+
+    if((length == starting_size)){
+      starting_size += 16;
+      string = realloc(string, sizeof(*string)*(starting_size));
+      if((string == NULL)){
+        return string;
+      }
+    }
+  }
+
+  length++ ;
+  string[length] = '\0';
+  
+  return string;
+}
 
 int main() { 
-    char* values = fileToArray("testsort.txt");
-    printf("%ld", sizeof(values));
-    for(int i = 0;i < (sizeof(*values)/sizeof(char*)); i++){
-        int a = (sizeof(values)/sizeof(char*));
-        printf("%d \n", a);
-    }
+  FILE *fp;
+  fp = fopen("d/testfile.txt","r");
+  if((fp == NULL)){
+    exit(1);
+  }
+  struct LList *mylist = malloc(sizeof(struct LList));
+
+  file_to_LL(fp, mylist);
+
+
+
+
+  char* test_data = "hello";
+  add_to_LL(mylist, test_data);
 }
 
 
