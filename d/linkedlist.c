@@ -1,8 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include <string.h>
 
 struct node{
-  void* data;
+  char* data;
   struct node *next;
 };
 
@@ -15,30 +16,31 @@ void add_to_LList(struct LList *list, void* data);
 void Read_LList(struct LList *list);
 void free_LList(struct LList *list);
 
-int** array_of_data_addresses(struct LList *list);
-int compare(const int **x, const int **y);
+char** array_of_data_addresses(struct LList *list);
+int compare(const void *first_in, const void *second_in);
 void file_to_llist(FILE* fp, struct LList* list);
-void file_to_linkedList(FILE* fp, struct LList* list);
-int lines_in_file(FILE* fp);
 char* coppy_str(char string[]);
+void output_sorted_array(FILE* out_pointer, char** sorted_array);
 
 
-int** array_of_data_addresses(struct LList *list){
-  int **arrd; 
-  *arrd = (int *)malloc(list->count * sizeof (int*));
+char** array_of_data_addresses(struct LList *list){
+  //need to add a null onto the end of LL
+  
+  char **arrd; 
+  *arrd = (char *)malloc((list->count ) * sizeof (char*));
 
   
 
   struct node *c_ptr = list->head;
   int i = 0;
-  for(; i < list->count -1;i++){
-    arrd[i] = c_ptr->data;
+  for(; i < list->count -1 ;i++){
+    arrd[i] = (char*)c_ptr->data;
 
 
     c_ptr = c_ptr->next;
   }
 
-  arrd[i] = (c_ptr->data);
+  
 
 
   return arrd;
@@ -89,17 +91,14 @@ void add_to_LList(struct LList *list, void* data){
   return;
 }
 
-int compare(const int **x, const int **y) {
-    const int a = **x;
-    const int b = **y;
-
-    if(a < b)
-        return -1;
-    else
-        return 1;
+int compare(const void *first_in, const void *second_in){
+    const char *A = *(const char **)first_in;
+    const char *B = *(const char **)second_in;
+    return strcmp(A, B);
 }
 
 void file_to_llist(FILE* fp, struct LList* list){
+  
   //returns a char pointer to memory containing a string of (inicialy) unknown length
   char* string;
   int charactar;
@@ -138,6 +137,8 @@ void file_to_llist(FILE* fp, struct LList* list){
     free(string);
     
     add_to_LList(list, string_cpy);
+
+    
 }
 }
 
@@ -153,31 +154,13 @@ char* coppy_str(char string[]){
   return copy;
 }
 
-
-void file_to_linkedList(FILE* fp, struct LList* list){
-  char* whole_string;
-  int lower_char = 0;
-  int higher_char = 0;
-
-  file_to_llist(fp, list);
-
-  for( ;whole_string[higher_char]; higher_char++){
-
-    if((whole_string[higher_char] == '\n')){
-      char add_string[higher_char - lower_char];
-
-      for(int i = lower_char; i <= higher_char; i++){
-        add_string[i] = whole_string[i];
-      }
-      add_to_LList(list,&add_string);
-      lower_char = higher_char;
-
-    }
+void output_sorted_array(FILE* out_pointer, char** sorted_array){
+  int sorted_array_len = sizeof(sorted_array)/sizeof(sorted_array[0]);
+  for(int i = 0; i< sorted_array_len; i++){
+    fprintf(out_pointer, "\n%s",sorted_array[i]);
   }
-
-
-  
 }
+
 
 
 
@@ -187,12 +170,24 @@ void file_to_linkedList(FILE* fp, struct LList* list){
 int main(){
 
   FILE *fp;
-  fp = fopen("d/testsort.txt","r");
+  fp = fopen("testsort.txt","r");
   struct LList *mylist = malloc(sizeof(struct LList));
-  file_to_linkedList(fp, mylist);
+  file_to_llist(fp, mylist);
 
+  char* dummy_val = "null";
+  add_to_LList(mylist, dummy_val);
+  char** data = array_of_data_addresses(mylist);
 
+  char* unpacked[mylist->count -2];
+  for(int i = 0; i< mylist->count -1; i++ ){
+    unpacked[i] = data[i];
+  }
 
+  qsort(unpacked, mylist->count -2, sizeof(unpacked[0]), compare);
+
+  
+
+  output_sorted_array(stdout, unpacked);
 
   
 
@@ -211,8 +206,8 @@ int main(){
   */
   
 
-  free_LList(mylist);
-  printf("done");
+  //free_LList(mylist);
+  printf("\ndone\n");
   return 1;
 }
 
