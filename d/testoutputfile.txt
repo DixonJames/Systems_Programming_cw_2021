@@ -1,8 +1,8 @@
-20
-aaa
+
 bc
-aa
 ba
 ab
+aaa
+aa
+20
 10
-
