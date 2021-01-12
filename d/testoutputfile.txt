@@ -1,8 +1,1 @@
 
-bc
-ba
-ab
-aaa
-aa
-20
-10

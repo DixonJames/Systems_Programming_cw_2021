@@ -154,9 +154,8 @@ void stdin_to_llist(struct LList* list){
   int starting_size = 2;
   int cont = 1;
 
-  scanf("%d", &charactar);
 
-  while((EOF !=(charactar))){
+  while((EOF !=(charactar = fread(&charactar,sizeof(char),1,stdin)))){
 
     string = malloc(sizeof(*string)*starting_size);
     if((string == NULL)){
@@ -175,7 +174,7 @@ void stdin_to_llist(struct LList* list){
         }
       }
 
-      scanf("%d", &charactar);
+      charactar = fread(&charactar,sizeof(char),1,stdin);
     }
 
     length++ ;
@@ -251,7 +250,7 @@ char* coppy_str(char string[]){
 void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
   
   for(int i = 0; i< length; i++){
-    fprintf(out_pointer, "\n%s",sorted_array[i]);
+    fprintf(out_pointer, "%s\n",sorted_array[i]);
   }
 }
 
@@ -261,16 +260,21 @@ void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
 
 
 
-int main(){
-
-  char how_far_i_got[1];
+int main(int argc, char *argv[]){
+  //int argc, char *argv[]
+  char* how_far_i_got[1];
   how_far_i_got[0] = "\ndone:\ntaking an arbortratitly long line from a arbritary number of rows via dynamic allocation of memory depending on the length and number of input strings to sort \nsorting said lines with q-sort \n can sort numeric, reversed and a compination of the two \n can output sorted lines into a new file, or stdout";
 
+
+  /*
   int argc = 2;
   char *argv[argc];
-  argv[0] = "-roh";
-  argv[1] = "testoutputfile.txt";
-  argv[2] = "testsort.txt";
+  //argv[0] = "-o";
+  argv[0] = "thisifle";
+  argv[1] = "testsort.txt";
+  //argv[2] = "d/testsort.txt";
+  */
+  
   
 
   char* option_char[1];
@@ -290,6 +294,9 @@ int main(){
       for(int arg_char = 0; arg_char < size_of_arg; arg_char ++){
 
         switch ((argv[arg_num])[arg_char]){
+          case '-':
+            break;
+
           case 'o':
             o_option = 1;
             break;
@@ -317,7 +324,7 @@ int main(){
   char* files[2];
   int file_num = 0;
   
-  for(int arg_num = 0; arg_num < argc; arg_num++){
+  for(int arg_num = 1; arg_num < argc; arg_num++){
     if(((argv[arg_num])[0] != *option_char[0])){
 
       if((found_outfile == 0)||(found_outfile == o_option)){
@@ -325,14 +332,18 @@ int main(){
         file_num++ ;
       }
       else{
-        fprintf(stderr, "invalid number of files entered");
+        fprintf(stderr, "\ninvalid number of files entered\n");
         exit(1);
       }
     }
   }
 
   if((o_option == 1)&&(file_num == 0)){
-    fprintf(stderr, "output file option selected, but no output file name provided");
+    fprintf(stderr, "\noutput file option selected, but no output file name provided\n");
+    exit(1);
+  }
+  if((o_option == 0)&&(file_num > 1)){
+    fprintf(stderr, "\noutput file option not selected, and too many output file names provided\n");
     exit(1);
   }
   
@@ -346,23 +357,45 @@ int main(){
   //opens file and puts its lines into a ll
   struct LList *mylist = malloc(sizeof(struct LList));
 
+  char* inputfile[1];
+  char* outputfile[1];
+
   if((o_option == 1)){
-    char* inputfile[1];
+    
     if((file_num == 2)){
       inputfile[0] = files[1];
+      outputfile[0] = files[0];
     }
-    else{
-      inputfile[0] = files[0];
+    if((file_num == 1)){
+      inputfile[0] = NULL;
+      outputfile[0] = files[0];
     }
 
+  }
+  else{
+    if((file_num == 1)){
+      inputfile[0] = files[0];
+      outputfile[0] = NULL;
+    }
+    else{
+      inputfile[0] = NULL;
+      outputfile[0] = NULL;
+    }
+  }
+
+
+//working out where to take input from
+  if((inputfile[0] != NULL)){
     FILE *fp;
-    // remomber to change file to inputfile[0]
-    fp = fopen("testsort.txt","r");
+    
+    fp = fopen(inputfile[0],"r");
     file_to_llist(fp, mylist);
   }
   else{
     stdin_to_llist(mylist);
   }
+  
+  
   
 
   //takes all addresses pointers in linked list and puts them into an array
@@ -378,16 +411,16 @@ int main(){
 
   //sorts the array of pointers
   if((n_option == 0)&&(r_option == 0)){
-    qsort(unpacked, mylist->count -2, sizeof(unpacked[0]), compare);
+    qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), compare);
   }
   if((n_option == 1)&&(r_option == 0)){
-    qsort(unpacked, mylist->count -2, sizeof(unpacked[0]), numeric_compare);
+    qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), numeric_compare);
   }
   if((n_option == 0)&&(r_option == 1)){
-    qsort(unpacked, mylist->count -2, sizeof(unpacked[0]), reverse_compare);
+    qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), reverse_compare);
   }
   if((n_option == 1)&&(r_option == 1)){
-    qsort(unpacked, mylist->count -2, sizeof(unpacked[0]), reverse_numeric_compare);
+    qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), reverse_numeric_compare);
   }
   
   char* sorted_arr[mylist->count -2];
@@ -399,11 +432,12 @@ int main(){
 
 
   //outputs the aarray of pointers
-  if((o_option == 0)){
+  if(outputfile[0] == NULL){
     output_sorted_array(stdout, sorted_arr, mylist->count -1);
   }
   else{
-    output_sorted_array(files[0], sorted_arr, mylist->count -1);
+    FILE* fp = fopen(outputfile[0], "w");
+    output_sorted_array(fp, sorted_arr, mylist->count -1);
   }
   
 
