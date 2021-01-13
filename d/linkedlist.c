@@ -147,47 +147,18 @@ int reverse_numeric_compare(const void *first_in, const void *second_in){
 }
 
 void stdin_to_llist(struct LList* list){
-  //returns a char pointer to memory containing a string of (inicialy) unknown length
-  char* string;
-  int charactar;
-  int length = 0;
-  int starting_size = 2;
-  int cont = 1;
 
-
-  while((EOF !=(charactar = fread(&charactar,sizeof(char),1,stdin)))){
-
-    string = malloc(sizeof(*string)*starting_size);
-    if((string == NULL)){
-      exit(1);
+  char* line = NULL;
+  size_t size=0;
+  while(getline(&line, &size, stdin) >0){
+    int number = 0;
+    sscanf(line,"%d", &number);
+    if(("\n" != line)){
+      add_to_LList(list, coppy_str(line));
+      //printf("%s", line);
     }
-
-    while((charactar != '\n') && (EOF !=(charactar))&& (cont == 1)){
-      string[length] = charactar;
-      length++ ;
-
-      if((length == starting_size)){
-        starting_size += 16;
-        string = realloc(string, sizeof(*string)*(starting_size));
-        if((string == NULL)){
-          cont = 0;
-        }
-      }
-
-      charactar = fread(&charactar,sizeof(char),1,stdin);
-    }
-
-    length++ ;
-    string[length] = '\0';
-    length = 0;
-
-    char* string_cpy = coppy_str(string);
-    free(string);
     
-    add_to_LList(list, string_cpy);
-
-    
-}
+  }
 }
 
 void file_to_llist(FILE* fp, struct LList* list){
@@ -223,16 +194,15 @@ void file_to_llist(FILE* fp, struct LList* list){
     }
 
     length++ ;
-    string[length] = '\0';
+    char new_line = '\n';
+    strncat(string, &new_line ,1 );
     length = 0;
 
     char* string_cpy = coppy_str(string);
     free(string);
     
     add_to_LList(list, string_cpy);
-
-    
-}
+  }
 }
 
 char* coppy_str(char string[]){
@@ -250,8 +220,11 @@ char* coppy_str(char string[]){
 void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
   
   for(int i = 0; i< length; i++){
-    fprintf(out_pointer, "%s\n",sorted_array[i]);
+    if((sorted_array[i] != "\n")){
+      fprintf(out_pointer, "%s",sorted_array[i]);
+    }
   }
+  //fprintf(out_pointer, "\n");
 }
 
 
@@ -271,9 +244,10 @@ int main(int argc, char *argv[]){
   char *argv[argc];
   //argv[0] = "-o";
   argv[0] = "thisifle";
-  argv[1] = "testsort.txt";
+  argv[1] = "d/testsort.txt";
   //argv[2] = "d/testsort.txt";
   */
+  
   
   
 
@@ -403,7 +377,7 @@ int main(int argc, char *argv[]){
   add_to_LList(mylist, dummy_val);
   char** data = array_of_data_addresses(mylist);
 
-  char* unpacked[mylist->count -2];
+  char* unpacked[mylist->count -1];
   for(int i = 0; i< mylist->count -1; i++ ){
     unpacked[i] = data[i];
   }
@@ -423,9 +397,10 @@ int main(int argc, char *argv[]){
     qsort(unpacked, mylist->count -1, sizeof(unpacked[0]), reverse_numeric_compare);
   }
   
-  char* sorted_arr[mylist->count -2];
+  char* sorted_arr[mylist->count -1];
   for(int i = 0; i< mylist->count -1; i++ ){
     sorted_arr[i] = unpacked[i];
+
   }
 
 
