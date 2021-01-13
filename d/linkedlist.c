@@ -124,7 +124,7 @@ int numeric_compare(const void *first_in, const void *second_in){
   if((A_is_int > 0)&&(B_is_int == 0)){
     return 1;
   }
-  return strcmp(A, B);
+  return strcmp(first_in, second_in);
 }
 
 int reverse_numeric_compare(const void *first_in, const void *second_in){
@@ -143,7 +143,7 @@ int reverse_numeric_compare(const void *first_in, const void *second_in){
   if((A_is_int > 0)&&(B_is_int == 0)){
     return -1;
   }
-  return reverse_compare(A, B);
+  return reverse_compare(first_in, second_in);
 }
 
 void stdin_to_llist(struct LList* list){
@@ -245,13 +245,15 @@ int main(int argc, char *argv[]){
   
 
   /*
-  int argc = 2;
+  int argc = 3;
   char *argv[argc];
-  //argv[0] = "-o";
-  argv[0] = "thisifle";
-  argv[1] = "d/testsort.txt";
+  argv[0] = "-n";
+  argv[1] = "-r";
+  //argv[2] = "thisifle";
+  argv[2] = "d/testsort.txt";
   //argv[2] = "d/testsort.txt";
   */
+  
   
   
   
