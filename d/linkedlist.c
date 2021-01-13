@@ -147,15 +147,22 @@ int reverse_numeric_compare(const void *first_in, const void *second_in){
 }
 
 void stdin_to_llist(struct LList* list){
-
+  char* new_line = "\n";
   char* line = NULL;
   size_t size=0;
+  
   while(getline(&line, &size, stdin) >0){
     int number = 0;
     sscanf(line,"%d", &number);
     if(("\n" != line)){
+      int final_index = strlen(line);
+
+      if((line[final_index-1] != '\n')){
+        strncat(line, new_line, 1);
+      }
+      
+
       add_to_LList(list, coppy_str(line));
-      //printf("%s", line);
     }
     
   }
@@ -235,9 +242,7 @@ void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
 
 int main(int argc, char *argv[]){
   //int argc, char *argv[]
-  char* how_far_i_got[1];
-  how_far_i_got[0] = "\ndone:\ntaking an arbortratitly long line from a arbritary number of rows via dynamic allocation of memory depending on the length and number of input strings to sort \nsorting said lines with q-sort \n can sort numeric, reversed and a compination of the two \n can output sorted lines into a new file, or stdout";
-
+  
 
   /*
   int argc = 2;
@@ -294,7 +299,11 @@ int main(int argc, char *argv[]){
       }
     }
   }
-
+  if((h_option)){
+    printf("done:\n> taking an arbortratitly long line from a arbritary number of rows via dynamic allocation of memory depending on the length and number of input strings to sort.\n> sorting said lines with q-sort \n> can sort numeric, reversed and a compination of the two \n> can output sorted lines into a new file, or stdout\n");
+    return 1;
+  }
+    
   char* files[2];
   int file_num = 0;
   
