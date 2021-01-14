@@ -43,6 +43,7 @@ struct board_structure {
 board setup_board(){
   struct board_structure *mylist = malloc(sizeof(struct board_structure));
     if((mylist == NULL)){
+        fprintf(stderr, "failed to allocate memory for new board");
         exit(1);
     }
     mylist->head = NULL;
@@ -65,6 +66,7 @@ void read_in_file(FILE *infile, board u){
 
     int col_num = number_cols(infile) ;
     if((col_num < 4)||(col_num > 512)){
+        fprintf(stderr, "file entered has incorrect dimensions for a valid board");
         exit(1);
     }
     
@@ -506,6 +508,7 @@ void base_board_setup(board list, int cols){
     for(int i = 1; i < cols; i++){
         struct node* newnode = malloc(sizeof(struct node));
         if((newnode == NULL)){
+            fprintf(stderr, "failed to allocate memory for new node");
             exit(1);
         }
         newnode->data = blank;
@@ -529,6 +532,7 @@ void base_board_setup(board list, int cols){
     }
     struct node* newnode = malloc(sizeof(struct node));
     if((newnode == NULL)){
+            fprintf(stderr, "failed to allocate memory for new node");
             exit(1);
         }
     newnode->data = blank;
@@ -690,6 +694,7 @@ void add_to_board(board list, int x, int y, char data){
         struct node* newnode = malloc(sizeof(struct node));
         if((newnode == NULL)){
             // node failed to be allocated memeory. 
+            fprintf(stderr, "failed to allocate memory for new node");
             exit(1);
         }
 

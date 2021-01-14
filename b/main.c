@@ -17,6 +17,7 @@ int main(){
     write_out_file(stdout,my_board);
     }
   }
+  
 
   outfile=fopen("final_board.txt","w");
   write_out_file(outfile,my_board);
