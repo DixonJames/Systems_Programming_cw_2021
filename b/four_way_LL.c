@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h> 
+#include<ctype.h>
 
 typedef struct board_structure *board;
 
@@ -153,15 +154,55 @@ void cleanup_board(board u){
 }
 
 struct move read_in_move(board u){
-    printf("Player %c enter column to place your token: ",next_player(u));
+    int accept_input = 0;
+
     int column_int;
-    scanf("%d", &column_int);
+    char collumn_char[1];
 
-    printf("Player %c enter row to rotate: ",next_player(u));
-    int row_int;
-    scanf("%d", &row_int);
+    while (accept_input == 0)
+    {
+        printf("Player %c enter column to place your token: ",next_player(u));
 
+        
+        scanf("%c", &collumn_char[0]);
+        if((strcmp(collumn_char, "\n") == 0)){
+            scanf("%c", &collumn_char[0]);
+        }
+
+        if ((isdigit(collumn_char[0]))){
+            column_int = atoi(collumn_char);
+            accept_input = 1 ;
+        }
+        else{
+            int flush_char;
+            while ((flush_char = getchar()) != '\n' && flush_char != EOF) { }
+        }
+    }
     
+
+    accept_input = 0 ;
+    int row_int;
+    char row_char[1];
+    while (accept_input == 0)
+    {
+        printf("Player %c enter row to rotate: ",next_player(u));
+
+        
+        scanf("%c", &row_char[0]);
+        if((strcmp(row_char, "\n") == 0)){
+            scanf("%c", &row_char[0]);
+        }
+
+        if ((isdigit(row_char[0]))){
+            row_int = atoi(row_char);
+            accept_input = 1 ;
+        }
+        else{
+            int flush_char;
+            while ((flush_char = getchar()) != '\n' && flush_char != EOF) { }
+        }
+    }
+
 
     struct move current_move = {
    .column = column_int,  .row = row_int};
@@ -791,7 +832,31 @@ void write_out_file(FILE *outfile, board u){
 }
     
 
+int main(){
+  FILE *infile,*outfile;
 
+  board my_board=setup_board();
+  infile=fopen("initial_board.txt","r");
+  read_in_file(infile,my_board);
+  fclose(infile);
+
+  write_out_file(stdout,my_board);
+   
+  while(current_winner(my_board)=='.') {
+    struct move next_move = read_in_move(my_board);
+    if (is_valid_move(next_move,my_board)) {
+    play_move(next_move,my_board);
+    write_out_file(stdout,my_board);
+    }
+  }
+
+  outfile=fopen("final_board.txt","w");
+  write_out_file(outfile,my_board);
+  fclose(outfile);
+
+  cleanup_board(my_board);
+  return 0;
+}
 
 
 
