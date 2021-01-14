@@ -26,6 +26,7 @@ int reverse_compare(const void *first_in, const void *second_in);
 int numeric_compare(const void *first_in, const void *second_in);
 int reverse_numeric_compare(const void *first_in, const void *second_in);
 void stdin_to_llist(struct LList* list);
+char* trim_string(char* whole, int new_start, int new_end);
 
 char** array_of_data_addresses(struct LList *list){
   //need to add a null onto the end of LL
@@ -234,7 +235,15 @@ void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
   //fprintf(out_pointer, "\n");
 }
 
-
+char* trim_string(char* whole, int new_start, int new_end){
+  char* new_str = malloc((new_end-new_start) *sizeof(char));
+  for(int i = 0; i < strlen(whole); i++){
+    if((i >= new_start)&&(i<= new_end)){
+      new_str[i-new_start] = whole[i];
+    }
+  }
+  return new_str;
+}
 
 
 
@@ -245,14 +254,20 @@ int main(int argc, char *argv[]){
   
 
   /*
-  int argc = 3;
+  int argc = 2;
   char *argv[argc];
-  argv[0] = "-n";
-  argv[1] = "-r";
-  //argv[2] = "thisifle";
-  argv[2] = "d/testsort.txt";
+  //argv[0] = "-oz";
+  //argv[1] = "-r";
+  argv[0] = "thisifle";
+  argv[1] = "d/testsort.txt";
   //argv[2] = "d/testsort.txt";
   */
+  
+  
+
+  char mystr[5] = "hello";
+  char* new_str[3]; 
+  new_str[0] = trim_string(mystr, 2,4);
   
   
   
@@ -269,17 +284,46 @@ int main(int argc, char *argv[]){
   int found_outfile = 0;
   int found_infile = 0;
 
+  char* files[argc];
+  int file_num = 0;
+
+  char* inputfile[1];
+  char* outputfile[1];
+  inputfile[0] = NULL;
+  outputfile[0] = NULL;
+
+  int num_inputs = 0;
+
   for(int arg_num = 0; arg_num < argc; arg_num++){
     int size_of_arg = strlen(argv[arg_num]);
     if(((argv[arg_num])[0] == *option_char[0])){
       for(int arg_char = 0; arg_char < size_of_arg; arg_char ++){
 
-        switch ((argv[arg_num])[arg_char]){
+        switch (argv[arg_num][arg_char]){
           case '-':
             break;
 
           case 'o':
             o_option = 1;
+
+            if((argv[arg_num][arg_char+1])){
+              outputfile[0] = trim_string(argv[arg_num], arg_char+1, size_of_arg-1);
+              arg_char = size_of_arg-1;
+            }
+            else{
+              if((argv[arg_num +1] != NULL)){
+                outputfile[0] = argv[arg_num +1];
+              }
+              else{
+                fprintf(stderr, "ldzc78 - sort: option requires an argument -- 'o'");
+                exit(1);
+
+              }
+              arg_char = size_of_arg-1;
+              arg_num++ ;
+            }
+
+          
             break;
 
           case 'r':
@@ -295,90 +339,51 @@ int main(int argc, char *argv[]){
             break;
 
           default:
-            fprintf(stderr, "invalid option entered");
+            fprintf(stderr, "ldzc78 - sort: invalid option -- '%d'", argv[arg_num][arg_char]);
             exit(1);
         }
       }
     }
+    else{
+      if((arg_num != 0)){
+        files[num_inputs] = argv[arg_num];
+        num_inputs ++;
+      }
+    }
   }
+
   if((h_option)){
     printf("done:\n> taking an arbortratitly long line from a arbritary number of rows via dynamic allocation of memory depending on the length and number of input strings to sort.\n> sorting said lines with q-sort \n> can sort numeric, reversed and a compination of the two \n> can output sorted lines into a new file, or stdout\n");
     return 1;
   }
     
-  char* files[2];
-  int file_num = 0;
   
-  for(int arg_num = 1; arg_num < argc; arg_num++){
-    if(((argv[arg_num])[0] != *option_char[0])){
-
-      if((found_outfile == 0)||(found_outfile == o_option)){
-        files[file_num] = argv[arg_num];
-        file_num++ ;
-      }
-      else{
-        fprintf(stderr, "\ninvalid number of files entered\n");
-        exit(1);
-      }
-    }
-  }
-
-  if((o_option == 1)&&(file_num == 0)){
-    fprintf(stderr, "\noutput file option selected, but no output file name provided\n");
-    exit(1);
-  }
-  if((o_option == 0)&&(file_num > 1)){
-    fprintf(stderr, "\noutput file option not selected, and too many output file names provided\n");
-    exit(1);
-  }
+  
   
 
 
-
-
-
+  
 
 
   //opens file and puts its lines into a ll
   struct LList *mylist = malloc(sizeof(struct LList));
 
-  char* inputfile[1];
-  char* outputfile[1];
-
-  if((o_option == 1)){
-    
-    if((file_num == 2)){
-      inputfile[0] = files[1];
-      outputfile[0] = files[0];
-    }
-    if((file_num == 1)){
-      inputfile[0] = NULL;
-      outputfile[0] = files[0];
-    }
-
-  }
-  else{
-    if((file_num == 1)){
-      inputfile[0] = files[0];
-      outputfile[0] = NULL;
-    }
-    else{
-      inputfile[0] = NULL;
-      outputfile[0] = NULL;
-    }
-  }
-
-
-//working out where to take input from
-  if((inputfile[0] != NULL)){
-    FILE *fp;
-    
-    fp = fopen(inputfile[0],"r");
+  //working out where to take input from
+  FILE *fp;
+  if((num_inputs != 0)){
+    for(int i = 0; i < num_inputs; i++){
+    fp = fopen(files[0],"r");
     file_to_llist(fp, mylist);
+    }
   }
   else{
     stdin_to_llist(mylist);
   }
+  
+  
+  
+  
+  
   
   
   
