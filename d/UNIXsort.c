@@ -32,7 +32,7 @@ char** array_of_data_addresses(struct LList *list){
   //need to add a null onto the end of LL
   
   char **arrd; 
-  *arrd = (char *)malloc((list->count ) * sizeof (char*));
+  arrd = malloc((list->count ) * sizeof (char*));
 
   
 
@@ -44,10 +44,6 @@ char** array_of_data_addresses(struct LList *list){
 
     c_ptr = c_ptr->next;
   }
-
-  
-
-
   return arrd;
 }
 
@@ -60,15 +56,12 @@ void free_LList(struct LList *list){
       free(curret_ptr);
       curret_ptr = next_ptr;
     }
+  }
   free(list);
   return;
-  }
-  
-
 }
 
 void add_to_LList(struct LList *list, void* data){
-  struct node *head = list->head;
   struct node *new_node = malloc(sizeof(struct node));
 
   if(new_node == NULL){
@@ -148,30 +141,52 @@ int reverse_numeric_compare(const void *first_in, const void *second_in){
 }
 
 void stdin_to_llist(struct LList* list){
-  char* new_line = "\n";
-  char* line = NULL;
-  size_t size=0;
   
-  while(getline(&line, &size, stdin) >0){
-    int number = 0;
-    sscanf(line,"%d", &number);
-    if(("\n" != line)){
-      int final_index = strlen(line);
 
-      if((line[final_index-1] != '\n')){
-        strncat(line, new_line, 1);
-      }
-      
+  char* string;
+  int charactar;
+  int length = 0;
+  int starting_size = 2;
+  int cont = 1;
 
-      add_to_LList(list, coppy_str(line));
+
+  while((EOF !=(charactar = getchar()))){
+
+    string = malloc(sizeof(*string)*starting_size);
+    if((string == NULL)){
+      exit(1);
     }
+
+    while((charactar != '\n') && (EOF !=(charactar))&& (cont == 1)){
+      string[length] = charactar;
+      length++ ;
+
+      if((length == starting_size)){
+        starting_size += 16;
+        string = realloc(string, sizeof(*string)*(starting_size));
+        if((string == NULL)){
+          cont = 0;
+        }
+      }
+
+      charactar = getchar();
+    }
+
+    length++ ;
+    char new_line = '\n';
+    strncat(string, &new_line ,1 );
+    length = 0;
+
+    char* string_cpy = coppy_str(string);
+    free(string);
     
+    add_to_LList(list, string_cpy);
   }
 }
 
 void file_to_llist(FILE* fp, struct LList* list){
   
-  //returns a char pointer to memory containing a string of (inicialy) unknown length
+
   char* string;
   int charactar;
   int length = 0;
@@ -218,7 +233,7 @@ char* coppy_str(char string[]){
   copy = (char*)malloc(strlen(string)+1);
 
   int i;
-  for(i = 0; i < strlen(string); i++){
+  for(i = 0; i < (int)strlen(string); i++){
     copy[i] = string[i];
   }
   copy[i] = '\0';
@@ -228,7 +243,7 @@ char* coppy_str(char string[]){
 void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
   
   for(int i = 0; i< length; i++){
-    if((sorted_array[i] != "\n")){
+    if((strcmp(sorted_array[i], "\n") != 0)){
       fprintf(out_pointer, "%s",sorted_array[i]);
     }
   }
@@ -237,7 +252,7 @@ void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
 
 char* trim_string(char* whole, int new_start, int new_end){
   char* new_str = malloc((new_end-new_start) *sizeof(char));
-  for(int i = 0; i < strlen(whole); i++){
+  for(int i = 0; i < (int)strlen(whole); i++){
     if((i >= new_start)&&(i<= new_end)){
       new_str[i-new_start] = whole[i];
     }
@@ -264,32 +279,22 @@ int main(int argc, char *argv[]){
   */
   
   
-
-  char mystr[5] = "hello";
-  char* new_str[3]; 
-  new_str[0] = trim_string(mystr, 2,4);
-  
-  
-  
   
 
   char* option_char[1];
   option_char[0]= "-";
 
-  int o_option = 0;
+
   int r_option = 0;
   int n_option = 0;
   int h_option = 0;
 
-  int found_outfile = 0;
-  int found_infile = 0;
+
+
 
   char* files[argc];
-  int file_num = 0;
 
-  char* inputfile[1];
   char* outputfile[1];
-  inputfile[0] = NULL;
   outputfile[0] = NULL;
 
   int num_inputs = 0;
@@ -304,7 +309,7 @@ int main(int argc, char *argv[]){
             break;
 
           case 'o':
-            o_option = 1;
+
 
             if((argv[arg_num][arg_char+1])){
               outputfile[0] = trim_string(argv[arg_num], arg_char+1, size_of_arg-1);
@@ -433,7 +438,7 @@ int main(int argc, char *argv[]){
   
 
 
-  //free_LList(mylist);
+  free_LList(mylist);
   
   return 1;
 }
