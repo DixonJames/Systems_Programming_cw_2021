@@ -53,12 +53,16 @@ void free_LList(struct LList *list){
     struct node *next_ptr = list->head;
     while (curret_ptr != NULL){
       next_ptr = curret_ptr->next;
+      if((curret_ptr->data != NULL)){
+        free(curret_ptr->data);
+      }
+      
       free(curret_ptr);
       curret_ptr = next_ptr;
     }
   }
-  free(list);
-  return;
+  //free(list->head->data);
+  
 }
 
 void add_to_LList(struct LList *list, void* data){
@@ -247,6 +251,7 @@ void output_sorted_array(FILE* out_pointer, char** sorted_array, int length){
       fprintf(out_pointer, "%s",sorted_array[i]);
     }
   }
+  //free(sorted_array);
   //fprintf(out_pointer, "\n");
 }
 
@@ -268,7 +273,7 @@ int main(int argc, char *argv[]){
   //int argc, char *argv[]
   
 
-  /*
+/*
   int argc = 2;
   char *argv[argc];
   //argv[0] = "-oz";
@@ -277,6 +282,8 @@ int main(int argc, char *argv[]){
   argv[1] = "d/testsort.txt";
   //argv[2] = "d/testsort.txt";
   */
+  
+
   
   
   
@@ -384,6 +391,7 @@ int main(int argc, char *argv[]){
   else{
     stdin_to_llist(mylist);
   }
+  fclose(fp);
   
   
   
@@ -394,7 +402,8 @@ int main(int argc, char *argv[]){
   
 
   //takes all addresses pointers in linked list and puts them into an array
-  char* dummy_val = "null";
+  char* dummy_val = malloc(sizeof(char*));
+  dummy_val[0] = 'N';
   add_to_LList(mylist, dummy_val);
   char** data = array_of_data_addresses(mylist);
 
@@ -437,8 +446,12 @@ int main(int argc, char *argv[]){
   }
   
 
-
   free_LList(mylist);
+  free(mylist);
+  free(data);
+
+
+  
   
   return 1;
 }
