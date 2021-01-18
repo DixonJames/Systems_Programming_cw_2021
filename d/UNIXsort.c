@@ -385,7 +385,12 @@ int main(int argc, char *argv[]){
   if((num_inputs != 0)){
     for(int i = 0; i < num_inputs; i++){
     fp = fopen(files[0],"r");
+    if((fp == NULL)){
+      fprintf(stderr, "couldnt open input file");
+      exit(1);
+    }
     file_to_llist(fp, mylist);
+    fclose(fp);
     }
   }
   else{
