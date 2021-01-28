@@ -396,7 +396,7 @@ int main(int argc, char *argv[]){
   else{
     stdin_to_llist(mylist);
   }
-  fclose(fp);
+
   
   
   
@@ -448,6 +448,7 @@ int main(int argc, char *argv[]){
   else{
     FILE* fp = fopen(outputfile[0], "w");
     output_sorted_array(fp, sorted_arr, mylist->count -1);
+    fclose(fp);
   }
   
 

@@ -108,7 +108,7 @@ void read_in_file(FILE *infile, board u){
 }
 
 void write_out_file(FILE *outfile, board u){
-  char current_to_insert[1];
+    char current_to_insert[1];
 
     for(int row_num = u->rows -1; row_num >= 0; row_num--){
         for(int col_num = 0; col_num <= u->cols ; col_num++){
@@ -116,12 +116,31 @@ void write_out_file(FILE *outfile, board u){
 
             if(query_board_structure(u, col_num, row_num) != u->head){
                 current_to_insert[0] = query_board_structure(u, col_num, row_num)->data;
+                //current_to_insert[0] = '.' ;
             }
             else{
                     current_to_insert[0] = '.' ;
             }
 
-            fprintf(outfile, "%s",current_to_insert);
+
+
+            if(('X' == current_to_insert[0])){
+                fprintf(outfile, "%s","X");
+            }
+            if(('x' == current_to_insert[0])){
+                fprintf(outfile, "%s","x");
+            }
+            if(('O' == current_to_insert[0])){
+                fprintf(outfile, "%s","O");
+            }
+            if(('o' == current_to_insert[0])){
+                fprintf(outfile, "%s","o");
+            }
+            if(('.' == current_to_insert[0])){
+                fprintf(outfile, "%s",".");
+            }
+            
+            
 
             
         }
@@ -839,3 +858,4 @@ struct node* query_board_structure(board list, int x, int y){
 
     
     }
+
